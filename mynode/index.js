@@ -12,6 +12,7 @@ app.get('/', (req, res) => {
     res.json({"message": "Welcome to Express application."});
 });
 
+
 // listen server on port 3000
 app.listen(3000, () => {
     console.log("Server is listening on port 3000");
