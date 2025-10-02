@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  # The name of your service (you can change this)
+  vite-app: 
+    # Build context is the current directory (where the Dockerfile is)
+    build: . 
+    
+    # 🌟 THE EACCES FIX FOR WINDOWS DEV 🌟
+    # By setting the user to 'root', we ensure the container can write to 
+    # the files being mounted from the Windows host.
+    # IMPORTANT: ONLY use 'root' in development.
+    
+    # Bind mounts for syncing code
+    volumes:
+      # Syncs your current directory (code) to the container's /app directory
+      - .:/app            
+      # Excludes the node_modules folder from the host to prevent conflicts 
+      # with the node_modules installed inside the container.
+      - /app/node_modules   
+    
+    # Port mapping: Host:Container
+    ports:
+      - "5173:5173"
+    
+    # Optional: Fixes HMR (Hot Module Replacement) issues on Windows/WSL
+    
+    # The command to run when the container starts (overrides the Dockerfile CMD)
