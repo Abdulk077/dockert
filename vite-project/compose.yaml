@@ -1,20 +1,23 @@
 # compose.yaml (Complete Recommended Dev Setup)
+version: '3.8'
 services:
-  web:
+
+  client:
     build:
       context: .
+    image: vite-dev-image
+    container_name: docker-vite-dev
     ports:
       - "5173:5173"
-    command: npm run dev
+    command: npm run build
 
-    environment:
-      - NODE_ENV=development
-    volumes:
+    #volumes:
       # Mounts source code
-      - .:/app 
+      #- .:/app 
+      #- /app/node_modules
       # Masks host's node_modules to use container's installed dependencies
-      - /app/node_modules 
-    # --- ADD THESE TWO LINES ---
+
+      # --- ADD THESE TWO LINES ---
     # ---------------------------
     stdin_open: true # Keeps standard input open
-    tty: true        # Allocates a pseudo-TTY (Prevents immediate exit)
+    #tty: true        # Allocates a pseudo-TTY (Prevents immediate exit)

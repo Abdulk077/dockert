@@ -5,7 +5,7 @@ FROM node:22-alpine
 RUN addgroup app && adduser -S -G app app
 
 # Set the working directory
-WORKDIR /app
+WORKDIR usr/src/app
 
 # Copy package files (for Docker cache efficiency)
 COPY package*.json ./
@@ -16,6 +16,7 @@ USER app
 # Switch back to root temporarily for ownership cleanup
 # Note: This step is often overridden by volume mounts, but good practice for internal files.
 USER root
+
 RUN chown -R app:app .
 
 # Switch back to the non-root user for running the application
@@ -30,4 +31,4 @@ COPY . .
 EXPOSE 5173
 
 # Command to run the development server
-CMD ["npm", "run", "dev"]
+CMD npm run build
