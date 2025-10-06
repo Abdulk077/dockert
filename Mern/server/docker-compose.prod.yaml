@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+
+  server:
+    build:
+      context: .
+      target: production
+    container_name: backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      DB_URL: "mongodb://root:example@db:27017/mydb?authSource=admin"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: mydb
+    volumes:
+      - mydb:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet -u root -p example --authenticationDatabase admin --eval 'db.adminCommand({ ping: 1 })' || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  mydb:

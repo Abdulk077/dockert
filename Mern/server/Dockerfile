@@ -1,28 +1,47 @@
-FROM node:20-alpine3.18
+# ----------- Base Stage (common for dev & prod) -----------
+FROM node:20-alpine AS base
 
-RUN addgroup app && adduser -S -G app app
-
-USER app
+# Create a non-root user for security
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 WORKDIR /app
 
+# Copy package.json first to leverage Docker cache
 COPY package*.json ./
 
-# change ownership of the /app directory to the app user
+# Set default user
+USER appuser
+
+# ----------- Development Stage -----------
+FROM base AS development
+
+# Switch back to root temporarily to install dependencies
 USER root
-
-# change ownership of the /app directory to the app user
-# chown -R <user>:<group> <directory>
-# chown command changes the user and/or group ownership of for given file.
-RUN chown -R app:app .
-
-# change the user back to the app user
-USER app
-
 RUN npm install
+USER appuser
 
-COPY . . 
+# Copy source code
+COPY . .
 
-EXPOSE 5000 
+# Expose development port
+EXPOSE 5000
 
-CMD ["npm" , "start"]
+# Command for development
+CMD ["npm", "run", "dev"]
+
+# ----------- Production Stage -----------
+FROM base AS production
+
+# Switch to root to install production dependencies
+USER root
+RUN npm ci --only=production
+USER appuser
+
+# Copy source code from base (or development stage)
+COPY --from=development /app /app
+
+# Expose production port
+EXPOSE 5000
+
+# Command for production
+CMD ["node", "index.js"]
